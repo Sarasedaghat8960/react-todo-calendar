@@ -5,12 +5,16 @@ import parse from 'date-fns/parse';
 import startOfWeek from 'date-fns/startOfDay';
 import getDay from 'date-fns/getDay';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect,  Component } from 'react';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css"
 import TodoList from './TodoList';
 import { v4 } from 'uuid';
 import moment from 'moment';
+import Holiday from './Components/Holiday';
+
+
+
 
 const locales = {
   "en-US" : require("date-fns/locale/en-US")
@@ -25,16 +29,33 @@ const localizer = dateFnsLocalizer({
 })
 
 const events =[]
-const Holidays=[]
 
+const holidays= []
 const LocalStorage ='todoApp.todos'
 function App() {
    const [newEvent, setNewEvent] = useState({title:"", start:""  , done:false})
 
    const [allEvents, setAllEvents] = useState(events)
 
- 
+  
+   
 
+ const componentDidMount=()=>{
+     fetch('https://sholiday.faboul.se/dagar/v2.1/2021')
+     .then(res=>res.json())
+     .then(res=>{
+         let redDay=res.data;
+         console.log(res)
+         for (let i = 0; i < redDay.length; i++) {
+          redDay[i].start =    moment.utc(redDay[i].start).toDate();
+             redDay[i].end = moment.utc(redDay[i].end).toDate();
+             
+           }
+           this.setState({
+             cal_events:redDay
+           })
+     })   
+    }
 
 
 useEffect(()=>{
@@ -72,14 +93,24 @@ useEffect(()=>{
       
       <Calendar localizer={localizer} events={allEvents} 
       startAccessor ="start" endAccessor="start" style={{height:500 , margin:"50px"}} />
-      <TodoList allEvents={allEvents} toggleTodo={toggleTodo} />
+      <div style={{marginLeft:'100px' ,width:'80%' ,boxShadow:'10px 10px 10px 10px black',background:'lightgray',fontSize:'20px' }}>
+      <div style={{fontWeight:'bold',fontSize:'20px' ,boxShadow:'5px 5px 5px 5px black',background:'lightgray'}}>
+      {allEvents.filter(allEvents=>!allEvents.done).length} left to do 
+
+      </div>
+      <br/>
+      < TodoList allEvents={allEvents} toggleTodo={toggleTodo}  />
+      
+      
+      <button onClick={handleClearEvent} style={{margin:'100px' ,width:'50%' ,boxShadow:'10px 10px 10px 10px black',fontWeight:'bold',fontSize:'20px' }}> Clear Done Events</button>
+      <br/>
+      </div>
+     
+      
     {  console.log('allevents',allEvents)}
   
-      <button onClick={handleClearEvent}> Clear Done Events</button>
-      <div>
-      {allEvents.filter(allEvents=>!allEvents.done).length} left to do 
-        
-      </div>
+      
+     
     </div>
   );
 }
