@@ -6,18 +6,21 @@ import startOfWeek from 'date-fns/startOfDay';
 import getDay from 'date-fns/getDay';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import React, {useState, useEffect,  Component } from 'react';
-import DatePicker from 'react-datepicker';
+import DatePicker ,{registerLocale} from 'react-datepicker';
+import sv from "date-fns/locale/sv"
 import "react-datepicker/dist/react-datepicker.css"
 import TodoList from './TodoList';
 import { v4 } from 'uuid';
 import moment from 'moment';
 import Holiday from './Components/Holiday';
-
-
+import axios from 'axios'
+import { lastDayOfMonth } from 'date-fns';
+registerLocale("sv", sv);
 
 
 const locales = {
-  "en-US" : require("date-fns/locale/en-US")
+
+  "sv" :sv
 }
 
 const localizer = dateFnsLocalizer({
@@ -27,87 +30,102 @@ const localizer = dateFnsLocalizer({
   getDay,
   locales
 })
+//const holidays= []
 
 const events =[]
+const LocalStorage ='TodoApp'
+const holidays=[]
+  
 
-const holidays= []
-const LocalStorage ='todoApp.todos'
 function App() {
-   const [newEvent, setNewEvent] = useState({title:"", start:""  , done:false})
 
+   const [newEvent, setNewEvent] = useState({title:"", start:""  , done:false, holiday:'No'})
    const [allEvents, setAllEvents] = useState(events)
+   const [allHolidays, setAllHolidays] = useState({title:"", start:""  , done:true , })
 
+//Holidays  API ?????????????
+
+function holiday() {
+  return (
+          axios('https://sholiday.faboul.se/dagar/v2.1/2021')
+          .then(response => {
+          
+           const holDay=response.data.dagar.filter(holiday=>holiday.helgdag).map(function(row){
+             return{ title:row.helgdag , start: row.datum , id:v4() , holiday:'Ja' , done:true}
+           })
+             setAllEvents(holDay) 
+             console.log('allholidays ',allHolidays)
+              
+                  })
+              
+              //   setAllHolidays({title:response.data.dagar[i].helgdag , start:response.data.dagar[i].datum})
+           
+   
+  )
+}
   
    
 
- const componentDidMount=()=>{
-     fetch('https://sholiday.faboul.se/dagar/v2.1/2021')
-     .then(res=>res.json())
-     .then(res=>{
-         let redDay=res.data;
-         console.log(res)
-         for (let i = 0; i < redDay.length; i++) {
-          redDay[i].start =    moment.utc(redDay[i].start).toDate();
-             redDay[i].end = moment.utc(redDay[i].end).toDate();
-             
-           }
-           this.setState({
-             cal_events:redDay
-           })
-     })   
-    }
-
+// Store events to Local storage 
 
 useEffect(()=>{
+  
   const storedTodos=JSON.parse(localStorage.getItem(LocalStorage))
   if (storedTodos) setAllEvents(storedTodos)
 },[])
+
+
 useEffect(()=>{
   localStorage.setItem(LocalStorage , JSON.stringify(allEvents))
 },[allEvents])
-  function handleAddEvent(){
-    setAllEvents(prevAllEvents =>{
-      return [...prevAllEvents , {title:newEvent.title, start:moment(newEvent.start ).format("D MMM  YYYY") , done:false,id:v4()}]
-    })
-   
-  }
-  function toggleTodo(id){
-    const newEvents=[... allEvents]
-    
-   const doneEvent=newEvents.find(doneEvent=> doneEvent.id ===id )
-   doneEvent.done =! doneEvent.done
-    setAllEvents(newEvents)
-  }
+
+//Function for adding new event on clickind Add Event button 
+function handleAddEvent(){
+  setAllEvents(prevAllEvents =>{
+    return [...prevAllEvents , {title:newEvent.title, start:newEvent.start  , done:false , id:v4()}]
+  })
+  
+}
+
+// Function for changing the events status to done 
+function toggleTodo(id){
+  const newEvents=[... allEvents]
+  
+  const doneEvent=newEvents.find(doneEvent=> doneEvent.id ===id )
+  doneEvent.done =! doneEvent.done
+  setAllEvents(newEvents)
+}
   const handleClearEvent = ()=>{
-    const newEvent=allEvents.filter(clearEvents=>!clearEvents.done)
-    setAllEvents(newEvent)
+    const clearDoneEvent=allEvents.filter(clearEvents=>!clearEvents.done)
+    setAllEvents(clearDoneEvent)
   }
+  
   return (
     <div className="App">
-      <h1>Calendar</h1>
+      <h1>Todo Calendar</h1>
       <input type="text" placeholder="Add text" style={{width:"20%", marginRighr:"10px"}} value={newEvent.title} onChange={(e)=> setNewEvent({...newEvent,title: e.target.value})}/>
-
+      
       <DatePicker placeholderText="Start Date" 
-            selected={newEvent.start} onChange={(start)=> setNewEvent({...newEvent , start})} />
-           <button style={{marginTop: "10px "}} onClick={handleAddEvent}>Add Event</button>
+            selected={newEvent.start} locale="sv" onChange={(start)=> setNewEvent({...newEvent , start})} />
+      <button style={{marginTop: "10px "}} onClick={handleAddEvent}>Add Event</button>
       
       <Calendar localizer={localizer} events={allEvents} 
-      startAccessor ="start" endAccessor="start" style={{height:500 , margin:"50px"}} />
+      startAccessor ="start" endAccessor="start" style={{height:500 , margin:"150px"}} value={allEvents.title} />
       <div style={{marginLeft:'100px' ,width:'80%' ,boxShadow:'10px 10px 10px 10px black',background:'lightgray',fontSize:'20px' }}>
-      <div style={{fontWeight:'bold',fontSize:'20px' ,boxShadow:'5px 5px 5px 5px black',background:'lightgray'}}>
-      {allEvents.filter(allEvents=>!allEvents.done).length} left to do 
-
-      </div>
-      <br/>
-      < TodoList allEvents={allEvents} toggleTodo={toggleTodo}  />
-      
-      
-      <button onClick={handleClearEvent} style={{margin:'100px' ,width:'50%' ,boxShadow:'10px 10px 10px 10px black',fontWeight:'bold',fontSize:'20px' }}> Clear Done Events</button>
-      <br/>
+     
+        <div style={{fontWeight:'bold',fontSize:'20px' ,boxShadow:'5px 5px 5px 5px black',background:'lightgray'}}>
+             {allEvents.filter(allEvents=>!allEvents.done).length} left to do 
+             {console.log(allEvents)}
+        </div>
+        <br/>
+        < TodoList allEvents={allEvents} toggleTodo={toggleTodo}  />
+        <button onClick={holiday}>Show holidays</button>
+        <button onClick={handleClearEvent} style={{margin:'100px' ,width:'50%' ,boxShadow:'10px 10px 10px 10px black',fontWeight:'bold',fontSize:'20px' }}> Clear Done Events</button>
+        <br/>
+       
       </div>
      
       
-    {  console.log('allevents',allEvents)}
   
       
      
