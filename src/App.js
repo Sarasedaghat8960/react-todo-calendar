@@ -50,8 +50,8 @@ function holiday() {
           axios('https://sholiday.faboul.se/dagar/v2.1/2021')
           .then(response => {
           
-           const holDay=response.data.dagar.filter(holiday=>holiday.helgdag).map(function(row){
-             return{ title:row.helgdag , start: row.datum , id:v4() , holiday:'Ja' , done:true}
+           const holDay=response.data.dagar.filter(holiday=>holiday.helgdag).map(function(holidayEvents){
+             return{ title:holidayEvents.helgdag , start: holidayEvents.datum , id:v4() , holiday:'Ja' , done:true}
            })
              setAllEvents(holDay) 
              console.log('allholidays ',allHolidays)
