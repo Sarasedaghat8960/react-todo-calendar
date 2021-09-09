@@ -37,32 +37,16 @@ const LocalStorage ='TodoApp'
 
   
 
-function App() {
+ function App() {
 
    const [newEvent, setNewEvent] = useState({title:"", start:""  , done:false , holiday:'No' ,})
    const [allEvents, setAllEvents] = useState([])
    const [allHolidays, setAllHolidays] = useState([])
+   const [localStor,setLocalStor]=useState([])
    let count=0
+   let click=0
    
-   
-
-// Store events to Local storage 
-
-useEffect(()=>{
-
-  const storedTodos=JSON.parse(localStorage.getItem(LocalStorage))
-  console.log('storedToDoes:',storedTodos);
-  if (storedTodos) setAllEvents(storedTodos)
-  
-},[count])
-
-useEffect(()=>{
- console.log('localstorage',localStorage.getItem(LocalStorage));
-   
-  localStorage.setItem(LocalStorage , JSON.stringify(allEvents))
-  
-},[allEvents])
-
+ 
 
 
 
@@ -73,15 +57,41 @@ useEffect(() => {
   axios(`https://sholiday.faboul.se/dagar/v2.1/`+ year)
   .then(response => {
   
-   const holDay=response.data.dagar.filter(holiday=>holiday.helgdag).map(function(holidayEvents){
-     return{ title:holidayEvents.helgdag , start: holidayEvents.datum , id:v4() , done:true ,holiday:'Ja' }
+   const holDay=response.data.dagar.filter(holiday=>holiday.helgdag)
+   .map(function(holidayEvents){
+     return{ title:holidayEvents.helgdag , start: holidayEvents.datum , id:v4() , done:true  }
    })
    console.log('holDay',holDay);
-   setAllEvents([...holDay]) 
+   setAllEvents(holDay) 
      console.log('allEvents ', allEvents)
       
           });
   },[count]) 
+
+
+
+// Store events to Local storage 
+
+ useEffect(()=>{
+
+  const storedTodos=JSON.parse(localStorage.getItem(LocalStorage))
+  console.log('storedToDoes:',storedTodos);
+  if (storedTodos)
+   setAllEvents(storedTodos)
+   console.log('saved storage',localStorage.getItem(LocalStorage));
+  
+},[click])
+  
+
+
+ useEffect(()=>{
+  localStorage.setItem(LocalStorage , JSON.stringify(allEvents))
+   console.log('localstorage',localStorage.getItem(LocalStorage));
+
+ },[allEvents])
+
+
+
 
 
 
@@ -91,7 +101,7 @@ function handleAddEvent(){
       setAllEvents(prevAllEvents =>{
       return [...prevAllEvents , {title:newEvent.title,  start:newEvent.start  ,id:v4() , holiday:'No', done:false}]
       })
-      
+   click++   
    } 
 }
 
@@ -127,7 +137,7 @@ function toggleTodo(id){
           
           </div>
           <br/>
-          < TodoList allEvents={allEvents} toggleTodo={toggleTodo}  />
+          < TodoList allEvents={allEvents.filter(events=>events.holiday)} toggleTodo={toggleTodo}  />
           <button onClick={handleClearEvent} style={{margin:'100px' ,width:'50%' ,boxShadow:'10px 10px 10px 10px black',
             fontWeight:'bold',  fontSize:'20px' }}> Clear Done Events
           </button>
