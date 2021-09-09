@@ -12,7 +12,7 @@ import "react-datepicker/dist/react-datepicker.css"
 import TodoList from './TodoList';
 import { v4 } from 'uuid';
 import moment from 'moment';
-import Holiday from './Components/Holiday';
+import Form from './Form';
 import axios from 'axios'
 import { lastDayOfMonth } from 'date-fns';
 registerLocale("sv", sv);
@@ -30,105 +30,109 @@ const localizer = dateFnsLocalizer({
   getDay,
   locales
 })
-//const holidays= []
 
-const events =[]
+
+
 const LocalStorage ='TodoApp'
-const holidays=[]
+
   
 
 function App() {
 
-   const [newEvent, setNewEvent] = useState({title:"", start:""  , done:false, holiday:'No'})
-   const [allEvents, setAllEvents] = useState(events)
-   const [allHolidays, setAllHolidays] = useState({title:"", start:""  , done:true , })
-
-//Holidays  API ?????????????
-
-function holiday() {
-  return (
-          axios('https://sholiday.faboul.se/dagar/v2.1/2021')
-          .then(response => {
-          
-           const holDay=response.data.dagar.filter(holiday=>holiday.helgdag).map(function(holidayEvents){
-             return{ title:holidayEvents.helgdag , start: holidayEvents.datum , id:v4() , holiday:'Ja' , done:true}
-           })
-             setAllEvents(holDay) 
-             console.log('allholidays ',allHolidays)
-              
-                  })
-              
-              //   setAllHolidays({title:response.data.dagar[i].helgdag , start:response.data.dagar[i].datum})
-           
+   const [newEvent, setNewEvent] = useState({title:"", start:""  , done:false , holiday:'No' ,})
+   const [allEvents, setAllEvents] = useState([])
+   const [allHolidays, setAllHolidays] = useState([])
+   let count=0
    
-  )
-}
-  
    
 
 // Store events to Local storage 
 
 useEffect(()=>{
-  
-  const storedTodos=JSON.parse(localStorage.getItem(LocalStorage))
-  if (storedTodos) setAllEvents(storedTodos)
-},[])
 
+  const storedTodos=JSON.parse(localStorage.getItem(LocalStorage))
+  console.log('storedToDoes:',storedTodos);
+  if (storedTodos) setAllEvents(storedTodos)
+  
+},[count])
 
 useEffect(()=>{
+ console.log('localstorage',localStorage.getItem(LocalStorage));
+   
   localStorage.setItem(LocalStorage , JSON.stringify(allEvents))
+  
 },[allEvents])
 
-//Function for adding new event on clickind Add Event button 
-function handleAddEvent(){
-  setAllEvents(prevAllEvents =>{
-    return [...prevAllEvents , {title:newEvent.title, start:newEvent.start  , done:false , id:v4()}]
-  })
+
+
+
+// //Holidays  API ?????????????
+
+useEffect(() => {
+  let year=moment("2021").format('YYYY')
+  axios(`https://sholiday.faboul.se/dagar/v2.1/`+ year)
+  .then(response => {
   
+   const holDay=response.data.dagar.filter(holiday=>holiday.helgdag).map(function(holidayEvents){
+     return{ title:holidayEvents.helgdag , start: holidayEvents.datum , id:v4() , done:true ,holiday:'Ja' }
+   })
+   console.log('holDay',holDay);
+   setAllEvents([...holDay]) 
+     console.log('allEvents ', allEvents)
+      
+          });
+  },[count]) 
+
+
+
+//Function for adding new event on clicking Add Event button 
+function handleAddEvent(){
+   if(newEvent.title){
+      setAllEvents(prevAllEvents =>{
+      return [...prevAllEvents , {title:newEvent.title,  start:newEvent.start  ,id:v4() , holiday:'No', done:false}]
+      })
+      
+   } 
+}
+
+
+//Function for deleting done  events on clickind clear Event button 
+
+const handleClearEvent = ()=>{
+  const clearDoneEvent=allEvents.filter(clearEvents=>!clearEvents.done)
+  setAllEvents(clearDoneEvent)
 }
 
 // Function for changing the events status to done 
 function toggleTodo(id){
-  const newEvents=[... allEvents]
+  const toggleEvents=[... allEvents]
   
-  const doneEvent=newEvents.find(doneEvent=> doneEvent.id ===id )
+  const doneEvent=toggleEvents.find(doneEvent=> doneEvent.id ===id )
   doneEvent.done =! doneEvent.done
-  setAllEvents(newEvents)
+  setAllEvents(toggleEvents)
 }
-  const handleClearEvent = ()=>{
-    const clearDoneEvent=allEvents.filter(clearEvents=>!clearEvents.done)
-    setAllEvents(clearDoneEvent)
-  }
+
+
   
   return (
     <div className="App">
-      <h1>Todo Calendar</h1>
-      <input type="text" placeholder="Add text" style={{width:"20%", marginRighr:"10px"}} value={newEvent.title} onChange={(e)=> setNewEvent({...newEvent,title: e.target.value})}/>
-      
-      <DatePicker placeholderText="Start Date" 
-            selected={newEvent.start} locale="sv" onChange={(start)=> setNewEvent({...newEvent , start})} />
-      <button style={{marginTop: "10px "}} onClick={handleAddEvent}>Add Event</button>
-      
+      <Form  newEvent={newEvent} handleAddEvent={handleAddEvent} setNewEvent={setNewEvent}/>
       <Calendar localizer={localizer} events={allEvents} 
-      startAccessor ="start" endAccessor="start" style={{height:500 , margin:"150px"}} value={allEvents.title} />
+           startAccessor ="start" endAccessor="start" style={{height:500 , margin:"150px"}} value={allEvents.title} 
+      />
       <div style={{marginLeft:'100px' ,width:'80%' ,boxShadow:'10px 10px 10px 10px black',background:'lightgray',fontSize:'20px' }}>
-     
-        <div style={{fontWeight:'bold',fontSize:'20px' ,boxShadow:'5px 5px 5px 5px black',background:'lightgray'}}>
-             {allEvents.filter(allEvents=>!allEvents.done).length} left to do 
-             {console.log(allEvents)}
-        </div>
-        <br/>
-        < TodoList allEvents={allEvents} toggleTodo={toggleTodo}  />
-        <button onClick={holiday}>Show holidays</button>
-        <button onClick={handleClearEvent} style={{margin:'100px' ,width:'50%' ,boxShadow:'10px 10px 10px 10px black',fontWeight:'bold',fontSize:'20px' }}> Clear Done Events</button>
-        <br/>
-       
+          <div style={{fontWeight:'bold',fontSize:'20px' ,boxShadow:'5px 5px 5px 5px black',background:'lightgray'}}>
+                {allEvents.filter(allEvents=>!allEvents.done).length} left to do 
+                {console.log(allEvents)}
+          
+          </div>
+          <br/>
+          < TodoList allEvents={allEvents} toggleTodo={toggleTodo}  />
+          <button onClick={handleClearEvent} style={{margin:'100px' ,width:'50%' ,boxShadow:'10px 10px 10px 10px black',
+            fontWeight:'bold',  fontSize:'20px' }}> Clear Done Events
+          </button>
+          <br/>
       </div>
-     
-      
-  
-      
-     
     </div>
   );
 }

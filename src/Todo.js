@@ -3,7 +3,7 @@ import moment from 'moment';
 
 
 export default function Todo({allEvents,toggleTodo}) {
-   
+    
     const handleTodoClick =()=>{
         
         toggleTodo(allEvents.id)
