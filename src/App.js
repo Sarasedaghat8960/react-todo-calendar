@@ -5,8 +5,8 @@ import parse from 'date-fns/parse';
 import startOfWeek from 'date-fns/startOfDay';
 import getDay from 'date-fns/getDay';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import React, {useState, useEffect,useRef  } from 'react';
-import DatePicker ,{registerLocale} from 'react-datepicker';
+import React, {useState, useEffect } from 'react';
+import {registerLocale} from 'react-datepicker';
 import sv from "date-fns/locale/sv"
 import "react-datepicker/dist/react-datepicker.css"
 import TodoList from './TodoList';
@@ -14,7 +14,7 @@ import { v4 } from 'uuid';
 import moment from 'moment';
 import Form from './Form';
 import axios from 'axios'
-import { lastDayOfMonth } from 'date-fns';
+
 registerLocale("sv", sv);
 
 
@@ -41,10 +41,8 @@ const LocalStorage ='TodoApp'
 
    const [newEvent, setNewEvent] = useState({title:"", start:""  , done:false })
    const [allEvents, setAllEvents] = useState([])
-   const [allHolidays, setAllHolidays] = useState([])
-   const [localStor,setLocalStor]=useState([])
-   let count=0
-   let click=0
+   
+  
    
  // Change the color of events 
   function eventPropGetter(allEvents){ 
@@ -75,7 +73,7 @@ const LocalStorage ='TodoApp'
 useEffect(() => {
   //console.log('allEventsRef.current',allEventsRef.current);
  // if (allEvents !== allEventsRef.current) {
-//if(localStorage.getItem(LocalStorage)==[]){
+if(localStorage.getItem(LocalStorage)==[]){
 
 
   let year=moment("2021").format('YYYY')
@@ -92,7 +90,7 @@ useEffect(() => {
      console.log('allEvents ', allEvents)
       
           });
-   //  }   
+     }   
   },[]) 
 
 
@@ -128,7 +126,7 @@ function handleAddEvent(){
       setAllEvents(prevAllEvents =>{
       return [...prevAllEvents , {title:newEvent.title,  start:newEvent.start  ,id:v4() , workDay:'Ja', done:false}]
       })
-   click++   
+     
    } 
 }
 
