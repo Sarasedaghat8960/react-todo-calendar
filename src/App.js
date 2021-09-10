@@ -30,7 +30,7 @@ const localizer = dateFnsLocalizer({
   getDay,
   locales
 })
-
+ 
 
 
 const LocalStorage ='TodoApp'
@@ -39,18 +39,37 @@ const LocalStorage ='TodoApp'
 
  function App() {
 
-   const [newEvent, setNewEvent] = useState({title:"", start:""  , done:false , holiday:'No' ,})
+   const [newEvent, setNewEvent] = useState({title:"", start:""  , done:false })
    const [allEvents, setAllEvents] = useState([])
    const [allHolidays, setAllHolidays] = useState([])
    const [localStor,setLocalStor]=useState([])
    let count=0
    let click=0
    
- 
+ // Change the color of events 
+  function eventPropGetter(allEvents){ 
+    let newStyle = {
+      backgroundColor: "lightgreen",
+      color: 'black',
+      borderRadius: "5px",
+      border: "none"
+    };
+
+    if (allEvents.holiday){
+      newStyle.backgroundColor = "red"
+     
+    }
+
+    return {
+      className: "",
+      style: newStyle
+    };
+  }
+  
 
 
 
-// //Holidays  API ?????????????
+ //Holidays  API ?????????????
 
 useEffect(() => {
   let year=moment("2021").format('YYYY')
@@ -59,7 +78,7 @@ useEffect(() => {
   
    const holDay=response.data.dagar.filter(holiday=>holiday.helgdag)
    .map(function(holidayEvents){
-     return{ title:holidayEvents.helgdag , start: holidayEvents.datum , id:v4() , done:true  }
+     return{ title:holidayEvents.helgdag , start: holidayEvents.datum , id:v4() , done:true ,holiday:'Ja' }
    })
    console.log('holDay',holDay);
    setAllEvents(holDay) 
@@ -99,7 +118,7 @@ useEffect(() => {
 function handleAddEvent(){
    if(newEvent.title){
       setAllEvents(prevAllEvents =>{
-      return [...prevAllEvents , {title:newEvent.title,  start:newEvent.start  ,id:v4() , holiday:'No', done:false}]
+      return [...prevAllEvents , {title:newEvent.title,  start:newEvent.start  ,id:v4() , workDay:'Ja', done:false}]
       })
    click++   
    } 
@@ -127,19 +146,18 @@ function toggleTodo(id){
   return (
     <div className="App">
       <Form  newEvent={newEvent} handleAddEvent={handleAddEvent} setNewEvent={setNewEvent}/>
-      <Calendar localizer={localizer} events={allEvents} 
-           startAccessor ="start" endAccessor="start" style={{height:500 , margin:"150px"}} value={allEvents.title} 
+      <Calendar localizer={localizer} events={allEvents}  
+           startAccessor ="start" endAccessor="start" style={{height:500 , marginLeft:"150px" ,  marginRight:"150px" ,  marginBottom:"50px"}} value={allEvents.title} eventPropGetter={eventPropGetter}
       />
-      <div style={{marginLeft:'100px' ,width:'80%' ,boxShadow:'10px 10px 10px 10px black',background:'lightgray',fontSize:'20px' }}>
-          <div style={{fontWeight:'bold',fontSize:'20px' ,boxShadow:'5px 5px 5px 5px black',background:'lightgray'}}>
+      <div style={{margin:'0PX 10% 50PX 10%' ,width:'80%' ,boxShadow:'10px 10px 10px 10px black',background:'lightgray',fontSize:'20px' }}>
+          <div style={{fontWeight:'bold',fontSize:'20px' ,boxShadow:'5px 5px 5px 5px black'}}>
                 {allEvents.filter(allEvents=>!allEvents.done).length} left to do 
                 {console.log(allEvents)}
           
           </div>
           <br/>
-          < TodoList allEvents={allEvents.filter(events=>events.holiday)} toggleTodo={toggleTodo}  />
-          <button onClick={handleClearEvent} style={{margin:'100px' ,width:'50%' ,boxShadow:'10px 10px 10px 10px black',
-            fontWeight:'bold',  fontSize:'20px' }}> Clear Done Events
+          < TodoList allEvents={allEvents.filter(events=>events.workDay)} toggleTodo={toggleTodo}  />
+          <button onClick={handleClearEvent} style={{margin:'50PX 30% 50PX 25%' ,width:'50%' ,boxShadow:'10px 10px 10px 10px black'  ,fontWeight:'bold',  fontSize:'20px' , borderRadius:'10px'}}> Clear Done Events
           </button>
           <br/>
       </div>
