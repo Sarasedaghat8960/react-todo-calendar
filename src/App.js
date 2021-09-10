@@ -70,14 +70,16 @@ const LocalStorage ='TodoApp'
 
 
  //Fetch Holidays  API 
- const allEventsRef = useRef(allEvents);
+//const allEventsRef = useRef(allEvents);
 
 useEffect(() => {
-  console.log('allEventsRef.current',allEventsRef.current);
-  if (allEvents !== allEventsRef.current) {
+  //console.log('allEventsRef.current',allEventsRef.current);
+ // if (allEvents !== allEventsRef.current) {
+if(localStorage.getItem(LocalStorage)==[]){
 
-  //let year=moment("2021").format('YYYY')
-  axios(`https://sholiday.faboul.se/dagar/v2.1/2021`)
+
+  let year=moment("2021").format('YYYY')
+  axios(`https://sholiday.faboul.se/dagar/v2.1/`+year)
   .then(response => {
   
    const holDay=response.data.dagar.filter(holiday=>holiday.helgdag)
@@ -104,7 +106,7 @@ useEffect(() => {
   if (storedTodos)
    setAllEvents(storedTodos)
    console.log('saved storage',localStorage.getItem(LocalStorage));
-  
+ 
 },[])
   
 
