@@ -5,7 +5,7 @@ import parse from 'date-fns/parse';
 import startOfWeek from 'date-fns/startOfDay';
 import getDay from 'date-fns/getDay';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import React, {useState, useEffect,  Component } from 'react';
+import React, {useState, useEffect,useRef  } from 'react';
 import DatePicker ,{registerLocale} from 'react-datepicker';
 import sv from "date-fns/locale/sv"
 import "react-datepicker/dist/react-datepicker.css"
@@ -69,9 +69,11 @@ const LocalStorage ='TodoApp'
 
 
 
- //Holidays  API ?????????????
+ //Fetch Holidays  API 
+ const allEventsRef = useRef(allEvents);
 
 useEffect(() => {
+  if (allEvents !== allEventsRef.current) {
   let year=moment("2021").format('YYYY')
   axios(`https://sholiday.faboul.se/dagar/v2.1/`+ year)
   .then(response => {
@@ -85,7 +87,8 @@ useEffect(() => {
      console.log('allEvents ', allEvents)
       
           });
-  },[count]) 
+        }
+  },[allEventsRef]) 
 
 
 
@@ -99,7 +102,7 @@ useEffect(() => {
    setAllEvents(storedTodos)
    console.log('saved storage',localStorage.getItem(LocalStorage));
   
-},[click])
+},[])
   
 
 
