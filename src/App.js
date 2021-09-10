@@ -74,6 +74,7 @@ const LocalStorage ='TodoApp'
 
 useEffect(() => {
   if (allEvents !== allEventsRef.current) {
+
   let year=moment("2021").format('YYYY')
   axios(`https://sholiday.faboul.se/dagar/v2.1/`+ year)
   .then(response => {
@@ -84,11 +85,12 @@ useEffect(() => {
    })
    console.log('holDay',holDay);
    setAllEvents(holDay) 
+
      console.log('allEvents ', allEvents)
       
           });
-        }
-  },[]) 
+     }   
+  },[allEventsRef]) 
 
 
 
@@ -154,7 +156,7 @@ function toggleTodo(id){
       />
       <div style={{margin:'0PX 10% 50PX 10%' ,width:'80%' ,boxShadow:'10px 10px 10px 10px black',background:'lightgray',fontSize:'20px' }}>
           <div style={{fontWeight:'bold',fontSize:'20px' ,boxShadow:'5px 5px 5px 5px black'}}>
-                {allEvents.filter(allEvents=>!allEvents.done).length} left to do 
+                {allEvents.filter(allEvents=>{return(!allEvents.done && allEvents.workDay)}).length} left to do 
                 {console.log(allEvents)}
           
           </div>
