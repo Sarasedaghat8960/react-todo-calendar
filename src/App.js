@@ -72,8 +72,8 @@ const allEventsRef = useRef(allEvents);
 
 useEffect(() => {
   //console.log('allEventsRef.current',allEventsRef.current);
-  if (allEvents !== allEventsRef.current) {
-//if(localStorage.length== 0){
+  //if (allEvents !== allEventsRef.current) {
+if(!localStorage.getItem(LocalStorage)){
   console.log('true');
 
 
@@ -91,8 +91,10 @@ useEffect(() => {
      console.log('allEvents ', allEvents)
       
           });
+
+      //  }
      }   
-  },[allEventsRef]) 
+  },[]) 
 
 
 
