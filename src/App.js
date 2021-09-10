@@ -73,6 +73,7 @@ const LocalStorage ='TodoApp'
  const allEventsRef = useRef(allEvents);
 
 useEffect(() => {
+  console.log('allEventsRef.current',allEventsRef.current);
   if (allEvents !== allEventsRef.current) {
 
   let year=moment("2021").format('YYYY')
@@ -81,7 +82,7 @@ useEffect(() => {
   
    const holDay=response.data.dagar.filter(holiday=>holiday.helgdag)
    .map(function(holidayEvents){
-     return{ title:holidayEvents.helgdag , start: holidayEvents.datum , id:v4() , done:true ,holiday:'Ja' }
+     return{ title:holidayEvents.helgdag , start: holidayEvents.datum , id:v4() , done:false ,holiday:'Ja' }
    })
    console.log('holDay',holDay);
    setAllEvents(holDay) 
@@ -133,7 +134,7 @@ function handleAddEvent(){
 //Function for deleting done  events on clickind clear Event button 
 
 const handleClearEvent = ()=>{
-  const clearDoneEvent=allEvents.filter(clearEvents=>!clearEvents.done)
+  const clearDoneEvent=allEvents.filter(clearEvents=>!clearEvents.done )
   setAllEvents(clearDoneEvent)
 }
 
