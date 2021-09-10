@@ -5,7 +5,7 @@ import parse from 'date-fns/parse';
 import startOfWeek from 'date-fns/startOfDay';
 import getDay from 'date-fns/getDay';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import React, {useState, useEffect } from 'react';
+import React, {useState, useEffect,useRef } from 'react';
 import {registerLocale} from 'react-datepicker';
 import sv from "date-fns/locale/sv"
 import "react-datepicker/dist/react-datepicker.css"
@@ -73,7 +73,8 @@ const LocalStorage ='TodoApp'
 useEffect(() => {
   //console.log('allEventsRef.current',allEventsRef.current);
  // if (allEvents !== allEventsRef.current) {
-if(localStorage.getItem(LocalStorage)==[]){
+if(localStorage.length== 0){
+  console.log('true');
 
 
   let year=moment("2021").format('YYYY')
