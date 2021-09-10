@@ -76,8 +76,8 @@ useEffect(() => {
   console.log('allEventsRef.current',allEventsRef.current);
   if (allEvents !== allEventsRef.current) {
 
-  let year=moment("2021").format('YYYY')
-  axios(`https://sholiday.faboul.se/dagar/v2.1/`+ year)
+  //let year=moment("2021").format('YYYY')
+  axios(`https://sholiday.faboul.se/dagar/v2.1/2021`)
   .then(response => {
   
    const holDay=response.data.dagar.filter(holiday=>holiday.helgdag)
