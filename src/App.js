@@ -68,12 +68,12 @@ const LocalStorage ='TodoApp'
 
 
  //Fetch Holidays  API 
-//const allEventsRef = useRef(allEvents);
+const allEventsRef = useRef(allEvents);
 
 useEffect(() => {
   //console.log('allEventsRef.current',allEventsRef.current);
- // if (allEvents !== allEventsRef.current) {
-if(localStorage.length== 0){
+  if (allEvents !== allEventsRef.current) {
+//if(localStorage.length== 0){
   console.log('true');
 
 
@@ -92,7 +92,7 @@ if(localStorage.length== 0){
       
           });
      }   
-  },[]) 
+  },[allEventsRef]) 
 
 
 
