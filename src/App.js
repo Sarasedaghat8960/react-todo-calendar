@@ -75,7 +75,7 @@ const LocalStorage ='TodoApp'
 useEffect(() => {
   //console.log('allEventsRef.current',allEventsRef.current);
  // if (allEvents !== allEventsRef.current) {
-if(localStorage.getItem(LocalStorage)==[]){
+//if(localStorage.getItem(LocalStorage)==[]){
 
 
   let year=moment("2021").format('YYYY')
@@ -92,7 +92,7 @@ if(localStorage.getItem(LocalStorage)==[]){
      console.log('allEvents ', allEvents)
       
           });
-     }   
+   //  }   
   },[]) 
 
 
