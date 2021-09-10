@@ -91,7 +91,7 @@ useEffect(() => {
       
           });
      }   
-  },[allEventsRef]) 
+  },[]) 
 
 
 
